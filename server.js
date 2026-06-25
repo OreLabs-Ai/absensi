@@ -5,7 +5,8 @@
      /senjakala/  → RS Senjakala
      /            → landing page (links to both)
    Run:  node server.js        (default http://localhost:3000)
-   Env:  PORT, HOST, DATA_DIR
+   Env:  PORT, HOST, DATA_DIR,
+         UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN (prod persistence)
    ===================================================================== */
 "use strict";
 const http = require("http");
@@ -20,9 +21,10 @@ const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, "data");
 const APPS_DIR = path.join(__dirname, "apps");
 fs.mkdirSync(DATA_DIR, { recursive: true });
 
-/* ---------------- App instances ---------------- */
-const coolbeans = createApp({
+/* ---------------- App configs ---------------- */
+const COOLBEANS_CONFIG = {
   name: "Cool Beans",
+  key: "coolbeans",
   publicDir: path.join(APPS_DIR, "coolbeans", "public"),
   dataFile: path.join(DATA_DIR, "coolbeans.json"),
   defaultPw: "coolbeans",
@@ -40,10 +42,11 @@ const coolbeans = createApp({
   fallbackJab: "TRAINER",
   fallbackDivision: "LAYANAN",
   labels: { auth: "Tidak berwenang. Masuk sebagai Manajemen.", entityNotFound: "Karyawan tidak ditemukan." },
-});
+};
 
-const senjakala = createApp({
+const SENJAKALA_CONFIG = {
   name: "RS Senjakala",
+  key: "senjakala",
   publicDir: path.join(APPS_DIR, "senjakala", "public"),
   dataFile: path.join(DATA_DIR, "senjakala.json"),
   seedFile: path.join(APPS_DIR, "senjakala", "seed.json"),
@@ -62,12 +65,7 @@ const senjakala = createApp({
   fallbackJab: "TRAINEE",
   fallbackDivision: "STAFF MEDIS",
   labels: { auth: "Tidak berwenang. Masuk sebagai Direksi.", entityNotFound: "Petugas tidak ditemukan." },
-});
-
-const MOUNTS = [
-  { prefix: "/coolbeans", app: coolbeans },
-  { prefix: "/senjakala", app: senjakala },
-];
+};
 
 /* ---------------- Landing page ---------------- */
 const LANDING = `<!doctype html><html lang="id"><head><meta charset="utf-8">
@@ -102,39 +100,47 @@ const LANDING = `<!doctype html><html lang="id"><head><meta charset="utf-8">
   <footer>Satu server Node.js menyajikan kedua web.</footer>
 </div></body></html>`;
 
-/* ---------------- Router ---------------- */
-const server = http.createServer((req, res) => {
-  const urlPath = (req.url || "/").split("?")[0];
+/* ---------------- Boot ---------------- */
+(async () => {
+  const coolbeans = await createApp(COOLBEANS_CONFIG);
+  const senjakala = await createApp(SENJAKALA_CONFIG);
+  const MOUNTS = [
+    { prefix: "/coolbeans", app: coolbeans },
+    { prefix: "/senjakala", app: senjakala },
+  ];
 
-  for (const { prefix, app } of MOUNTS) {
-    if (urlPath === prefix) {
-      // Normalize to trailing slash so relative asset URLs resolve under the mount.
-      res.writeHead(302, { Location: prefix + "/" });
-      return res.end();
+  const server = http.createServer((req, res) => {
+    const urlPath = (req.url || "/").split("?")[0];
+
+    for (const { prefix, app } of MOUNTS) {
+      if (urlPath === prefix) {
+        // Normalize to trailing slash so relative asset URLs resolve under the mount.
+        res.writeHead(302, { Location: prefix + "/" });
+        return res.end();
+      }
+      if (urlPath.startsWith(prefix + "/")) {
+        const sub = urlPath.slice(prefix.length) || "/";
+        return app.handle(req, res, sub);
+      }
     }
-    if (urlPath.startsWith(prefix + "/")) {
-      const sub = urlPath.slice(prefix.length) || "/";
-      return app.handle(req, res, sub);
+
+    if (urlPath === "/" || urlPath === "/index.html") {
+      res.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-cache" });
+      return res.end(LANDING);
     }
-  }
+    if (urlPath === "/healthz") { res.writeHead(200, { "Content-Type": "text/plain" }); return res.end("ok"); }
 
-  if (urlPath === "/" || urlPath === "/index.html") {
-    res.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-cache" });
-    return res.end(LANDING);
-  }
-  if (urlPath === "/healthz") { res.writeHead(200, { "Content-Type": "text/plain" }); return res.end("ok"); }
+    res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
+    res.end("Not found. Buka /coolbeans/ atau /senjakala/");
+  });
 
-  res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
-  res.end("Not found. Buka /coolbeans/ atau /senjakala/");
-});
-
-server.listen(PORT, HOST, () => {
-  console.log(`\n  Sistem Absensi (gabungan) — server aktif (bind ${HOST}:${PORT})`);
-  console.log(`  ➜  Landing      : http://localhost:${PORT}/`);
-  console.log(`  ➜  Cool Beans   : http://localhost:${PORT}/coolbeans/`);
-  console.log(`  ➜  RS Senjakala : http://localhost:${PORT}/senjakala/`);
-  const nets = os.networkInterfaces();
-  for (const name of Object.keys(nets)) for (const ni of nets[name] || []) if (ni.family === "IPv4" && !ni.internal) console.log(`  ➜  Jaringan     : http://${ni.address}:${PORT}/`);
-  console.log(`  Data : ${DATA_DIR}  (coolbeans.json, senjakala.json)`);
-  console.log(`  Zona : WIB (UTC+7)\n`);
-});
+  server.listen(PORT, HOST, () => {
+    console.log(`\n  Sistem Absensi (gabungan) — server aktif (bind ${HOST}:${PORT})`);
+    console.log(`  ➜  Landing      : http://localhost:${PORT}/`);
+    console.log(`  ➜  Cool Beans   : http://localhost:${PORT}/coolbeans/`);
+    console.log(`  ➜  RS Senjakala : http://localhost:${PORT}/senjakala/`);
+    const nets = os.networkInterfaces();
+    for (const name of Object.keys(nets)) for (const ni of nets[name] || []) if (ni.family === "IPv4" && !ni.internal) console.log(`  ➜  Jaringan     : http://${ni.address}:${PORT}/`);
+    console.log(`  Zona : WIB (UTC+7)\n`);
+  });
+})().catch((e) => { console.error("Gagal start:", e); process.exit(1); });

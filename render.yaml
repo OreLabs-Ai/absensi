@@ -1,8 +1,13 @@
 # Render Blueprint — free web service, one Node process for both webs.
-# Deploy: push to GitHub, then on render.com → New → Blueprint → pick this repo.
-# NOTE (free plan): the disk is ephemeral. Data in /data is LOST when the
-# service sleeps (after ~15 min idle) or redeploys. Back up regularly via
-# each app's  Pengaturan → Cadangkan JSON  and restore via Import.
+# Deploy: push to GitHub, then render.com → New → Blueprint → pick this repo.
+#
+# PERSISTENCE: set the two UPSTASH_* vars below (Upstash Redis, free, no card)
+# so attendance data survives sleeps/redeploys. Without them the app falls back
+# to an ephemeral local file that resets when the free instance restarts.
+#
+# STAY AWAKE: free instances sleep after ~15 min idle (first visit then waits
+# ~50s). Add a free pinger (cron-job.org) hitting https://<app>.onrender.com/healthz
+# every ~10 min to keep it warm. See README.
 services:
   - type: web
     name: absensi
@@ -16,3 +21,8 @@ services:
     envVars:
       - key: NODE_VERSION
         value: "22"
+      # Set these in the Render dashboard (Environment) — values are NOT stored in the repo.
+      - key: UPSTASH_REDIS_REST_URL
+        sync: false
+      - key: UPSTASH_REDIS_REST_TOKEN
+        sync: false

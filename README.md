@@ -35,16 +35,38 @@ Lokasi data bisa dipindah: `DATA_DIR=/path/persisten node server.js`.
 
 Ganti di **Dashboard → Pengaturan** masing-masing. Token berlaku 8 jam.
 
+## Penyimpanan data (Upstash Redis — gratis, tanpa kartu)
+Secara default app menyimpan data ke **file lokal** (`data/`). Di hosting gratis
+(Render) file ini *ephemeral* → bisa hilang saat restart. Supaya **data absensi
+aman selamanya**, app otomatis memakai **Upstash Redis** jika dua env var ini diisi:
+
+| Env var | Isi |
+|---------|-----|
+| `UPSTASH_REDIS_REST_URL` | URL REST dari database Upstash |
+| `UPSTASH_REDIS_REST_TOKEN` | Token REST dari database Upstash |
+
+Tanpa npm tambahan — app memanggil REST API Upstash via `fetch`. Lokal tanpa env
+var ini = tetap pakai file (praktis untuk ngoprek).
+
+**Bikin Upstash (sekali, ~2 menit):**
+1. Daftar di **upstash.com** (gratis, tanpa kartu).
+2. **Create Database** (Redis) → region terdekat (mis. Singapore).
+3. Di tab **REST API**, salin **`UPSTASH_REDIS_REST_URL`** dan **`UPSTASH_REDIS_REST_TOKEN`**.
+
 ## Deploy ke Render (gratis)
 1. Push repo ini ke GitHub (lihat di bawah).
 2. render.com → **New** → **Blueprint** → pilih repo ini (`render.yaml` terbaca otomatis).
-3. Selesai. Akses di `https://<nama>.onrender.com/` → pilih web.
+3. Saat diminta, isi **Environment**: tempel `UPSTASH_REDIS_REST_URL` & `UPSTASH_REDIS_REST_TOKEN`.
+4. Selesai. Akses di `https://<nama>.onrender.com/` → pilih web.
 
-> ⚠️ **Penting soal data di Render free:** disk-nya *ephemeral*. Data di `data/`
-> **hilang** saat service tidur (idle ~15 menit) atau redeploy. **Backup berkala**
-> lewat **Pengaturan → Cadangkan JSON** di tiap web, pulihkan lewat **Import**.
-> Kalau butuh data permanen tanpa ribet, naik ke disk berbayar Render atau pakai
-> Fly.io (volume permanen).
+### Biar tidak "tidur" (hindari cold start ~50 dtk)
+Render free tidur setelah ~15 menit idle. Pakai pinger gratis:
+1. Daftar **cron-job.org** (gratis, tanpa kartu).
+2. Buat cronjob: URL `https://<nama>.onrender.com/healthz`, interval **tiap 10 menit**.
+
+> Backup tetap disarankan: **Pengaturan → Cadangkan JSON** di tiap web; pulihkan via **Import**.
+> Mau benar-benar selalu-nyala tanpa trik & data permanen? VM gratis-selamanya
+> (Google Cloud Always Free e2-micro / Oracle Always Free) — perlu kartu, setup ala-VPS.
 
 ## Push ke GitHub (aman, tanpa berbagi password)
 ```bash
