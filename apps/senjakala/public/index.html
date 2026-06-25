@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RS Senjakala · Sistem Absensi</title>
+<meta name="description" content="Sistem absensi & rekap shift RS Senjakala — Emergency Medical Service." />
+<link rel="icon" href="aa.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,400&family=IBM+Plex+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<!-- Ambient twilight backdrop -->
+<div class="bg-sky" aria-hidden="true"></div>
+<div class="bg-glow" aria-hidden="true"></div>
+<div class="bg-grain" aria-hidden="true"></div>
+
+<!-- ===================== TOP BAR ===================== -->
+<header class="topbar">
+  <div class="brand" id="brandHome" role="button" tabindex="0" aria-label="RS Senjakala — beranda absensi">
+    <img src="aa.png" alt="" class="brand-logo" />
+    <div class="brand-txt">
+      <span class="brand-name">RS&nbsp;SENJAKALA</span>
+      <span class="brand-sub">Emergency Medical Service</span>
+    </div>
+  </div>
+  <nav class="topnav" aria-label="Navigasi utama">
+    <span class="week-chip" id="weekChip" title="Periode rekap berjalan">Memuat…</span>
+    <button class="navbtn" id="navAbsen" aria-current="true">Absensi</button>
+    <button class="navbtn" id="navDash">
+      <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5Zm3 8H9V7a3 3 0 0 1 6 0v3Z" fill="currentColor"/></svg>
+      Dashboard
+    </button>
+  </nav>
+</header>
+
+<!-- ===================== ABSEN VIEW ===================== -->
+<main id="view-absen" class="view">
+  <section class="hero">
+    <img src="aa.png" alt="" class="hero-logo" />
+    <p class="eyebrow"><span class="eyebrow-mark"></span>Rumah Sakit Senjakala · Emergency Medical Service</p>
+    <h1 class="hero-title">Absensi Duty</h1>
+    <p class="hero-tag">Catat jam On Duty dan Off Duty setiap sesi duty-mu. Rekap tersusun otomatis tiap minggu.</p>
+    <div class="hero-meta">
+      <span class="hero-chip" id="heroDate">—</span>
+      <span class="hero-chip" id="heroWeek">—</span>
+      <span class="hero-chip" id="heroStaff">—</span>
+    </div>
+  </section>
+
+  <section class="stage">
+    <!-- Absen form -->
+    <form id="absenForm" class="foil card form-card" autocomplete="off" novalidate>
+      <header class="card-head">
+        <h2 class="card-title">Catat Kehadiran</h2>
+        <p class="card-desc">Pilih nama, lalu isi jam On Duty &amp; Off Duty.</p>
+      </header>
+
+      <div class="field">
+        <label for="fName">Nama Petugas</label>
+        <div class="select-wrap">
+          <select id="fName" required>
+            <option value="" disabled selected>Pilih nama…</option>
+          </select>
+          <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Jabatan</label>
+          <div class="readonly-box" id="fJabatan" aria-live="polite">—</div>
+        </div>
+        <div class="field">
+          <label for="fDate">Tanggal</label>
+          <input type="date" id="fDate" required />
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="fOn">On Duty <span class="lbl-mut">— mulai</span></label>
+          <input type="time" id="fOn" required />
+        </div>
+        <div class="field">
+          <label for="fOff">Off Duty <span class="lbl-mut">— selesai</span></label>
+          <input type="time" id="fOff" required />
+        </div>
+      </div>
+
+      <p class="shift-note" id="shiftNote">Pilih nama &amp; tanggal untuk melihat sesi shift hari itu.</p>
+
+      <div class="total-preview" id="totalPreview" aria-live="polite">
+        <span class="tp-label">Durasi Duty</span>
+        <span class="tp-value" id="tpValue">00:00</span>
+        <span class="tp-human" id="tpHuman">—</span>
+      </div>
+
+      <button type="submit" class="btn-gold" id="submitBtn">
+        <span>Catat Absen</span>
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </form>
+
+    <!-- Today's recent entries -->
+    <aside class="foil card recent-card">
+      <header class="card-head">
+        <h2 class="card-title">Aktivitas Hari Ini</h2>
+        <p class="card-desc" id="recentDate">—</p>
+      </header>
+      <div class="recent-stats">
+        <div class="rs-item"><span class="rs-num" id="recCount">0</span><span class="rs-lbl">catatan</span></div>
+        <div class="rs-item"><span class="rs-num" id="recPeople">0</span><span class="rs-lbl">petugas</span></div>
+        <div class="rs-item"><span class="rs-num" id="recHours">0j</span><span class="rs-lbl">jam duty</span></div>
+      </div>
+      <ul class="recent-list" id="recentList"></ul>
+      <p class="recent-empty" id="recentEmpty">Belum ada kehadiran tercatat hari ini.</p>
+    </aside>
+  </section>
+
+  <footer class="page-foot">
+    <span>RS Senjakala · Senjakala Roleplay</span>
+    <span class="dot">•</span>
+    <span>Data tersimpan lokal di perangkat ini</span>
+  </footer>
+</main>
+
+<!-- ===================== DASHBOARD VIEW ===================== -->
+<main id="view-dashboard" class="view hidden" aria-hidden="true">
+  <section class="dash-head">
+    <div>
+      <p class="eyebrow"><span class="eyebrow-mark"></span>Command Deck · Direksi</p>
+      <h1 class="dash-title">Dashboard Manajemen</h1>
+      <p class="dash-period" id="dashPeriod">—</p>
+    </div>
+    <div class="dash-actions">
+      <span class="mode-badge" id="modeBadge">Mode Pengamat</span>
+      <button class="btn-ghost viewer-only" id="btnAdminLogin">
+        <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5Zm3 8H9V7a3 3 0 0 1 6 0v3Z" fill="currentColor"/></svg>
+        Masuk sebagai Management
+      </button>
+      <button class="btn-ghost admin-only" id="btnArchive" title="Tutup rekap minggu ini & mulai minggu baru">Tutup &amp; Arsipkan Minggu</button>
+      <button class="btn-ghost danger" id="btnLogout">Keluar</button>
+    </div>
+  </section>
+
+  <!-- Periode — mengatur seluruh dashboard (KPI, grafik, peringkat, rekap) -->
+  <section class="period-bar">
+    <span class="period-bar-label">Periode</span>
+    <div class="seg" id="rangeSeg" role="group" aria-label="Rentang waktu dashboard">
+      <button type="button" class="seg-btn active" data-range="week">Minggu Ini</button>
+      <button type="button" class="seg-btn" data-range="7">7 Hari</button>
+      <button type="button" class="seg-btn" data-range="14">14 Hari</button>
+      <button type="button" class="seg-btn" data-range="30">1 Bulan</button>
+    </div>
+  </section>
+
+  <!-- KPI -->
+  <section class="kpi-grid" id="kpiGrid"></section>
+
+  <!-- Charts -->
+  <section class="chart-grid">
+    <article class="foil card chart-card">
+      <header class="card-head"><h2 class="card-title">Jam Duty per Hari</h2><p class="card-desc" id="daysDesc">Minggu berjalan · Senin–Minggu</p></header>
+      <div class="chart-body" id="chartDays"></div>
+    </article>
+    <article class="foil card chart-card">
+      <header class="card-head"><h2 class="card-title">Komposisi Divisi</h2><p class="card-desc">Proporsi jam duty</p></header>
+      <div class="chart-body donut-body" id="chartDivision"></div>
+    </article>
+    <article class="foil card chart-card wide">
+      <header class="card-head"><h2 class="card-title">Peringkat Petugas</h2><p class="card-desc" id="rankDesc">Total jam duty tertinggi · minggu ini</p></header>
+      <div class="chart-body" id="chartRank"></div>
+    </article>
+  </section>
+
+  <!-- Recap ledger -->
+  <section class="foil card ledger-card">
+    <header class="card-head row">
+      <div><h2 class="card-title">Rekap Kehadiran</h2><p class="card-desc" id="recapDesc">Klik baris untuk rincian · minggu ini</p></div>
+      <div class="ledger-tools">
+        <button class="chip-btn" id="btnExportCsv">Ekspor CSV</button>
+        <button class="chip-btn" id="btnExportJson">Cadangkan JSON</button>
+      </div>
+    </header>
+    <div class="table-scroll">
+      <table class="ledger" id="recapTable">
+        <thead>
+          <tr>
+            <th>Petugas</th><th>Jabatan</th><th class="num">Hari Aktif</th>
+            <th class="num">Shift</th><th class="num">Total Jam</th><th class="bar-col">Kontribusi</th>
+          </tr>
+        </thead>
+        <tbody id="recapBody"></tbody>
+      </table>
+    </div>
+    <p class="recent-empty" id="recapEmpty">Belum ada kehadiran pada minggu ini.</p>
+  </section>
+
+  <!-- Archive -->
+  <section class="foil card archive-card">
+    <header class="card-head row">
+      <div><h2 class="card-title">Arsip Rekap Mingguan</h2><p class="card-desc">Menyimpan maksimal 7 minggu terakhir — arsip terlama otomatis dihapus</p></div>
+      <span class="archive-count" id="archiveCount">0 / 7</span>
+    </header>
+    <div class="archive-rail" id="archiveRail"></div>
+    <p class="recent-empty" id="archiveEmpty">Belum ada minggu yang diarsipkan.</p>
+  </section>
+
+  <!-- Penggajian (terlihat semua) -->
+  <section class="foil card payroll-card">
+    <header class="card-head row">
+      <div><h2 class="card-title">Penggajian Minggu Ini</h2><p class="card-desc">Dihitung otomatis dari jam duty &amp; pengaturan gaji</p></div>
+      <span class="payroll-total" id="payrollTotal">Rp 0</span>
+    </header>
+    <div class="table-scroll">
+      <table class="ledger" id="payrollTable">
+        <thead><tr><th>Petugas</th><th>Jabatan</th><th class="num">Jam</th><th class="num">Lembur</th><th class="num">Gaji/Jam</th><th class="num">Gaji</th></tr></thead>
+        <tbody id="payrollBody"></tbody>
+      </table>
+    </div>
+    <p class="recent-empty" id="payrollEmpty">Belum ada data untuk dihitung.</p>
+    <p class="payroll-note" id="payrollHint"></p>
+  </section>
+
+  <!-- Pengaturan Gaji (management) -->
+  <section class="foil card payroll-settings admin-only">
+    <header class="card-head row">
+      <div><h2 class="card-title">Pengaturan Gaji</h2><p class="card-desc">Atur tiap jabatan: gaji/jam, ambang lembur, &amp; bonus — beda-beda per jabatan, otomatis diterapkan</p></div>
+      <button class="btn-gold sm" id="btnSavePayroll">Simpan Gaji</button>
+    </header>
+    <div class="rate-grid" id="rateGrid"></div>
+  </section>
+
+  <!-- Staff manager + Settings -->
+  <section class="admin-grid admin-only">
+    <article class="foil card staff-card">
+      <header class="card-head"><h2 class="card-title">Manajemen Petugas</h2><p class="card-desc">Tambah nama, ubah jabatan, atau nonaktifkan</p></header>
+      <form class="staff-add" id="staffAddForm">
+        <input type="text" id="saName" placeholder="Nama petugas baru" aria-label="Nama petugas baru" />
+        <div class="select-wrap sm">
+          <select id="saJabatan" aria-label="Jabatan"></select>
+          <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <button type="submit" class="btn-gold sm">Tambah</button>
+      </form>
+      <div class="table-scroll staff-scroll">
+        <table class="ledger compact" id="staffTable">
+          <thead><tr><th>Nama</th><th>Jabatan</th><th class="num">Status</th><th></th></tr></thead>
+          <tbody id="staffBody"></tbody>
+        </table>
+      </div>
+    </article>
+
+    <article class="foil card settings-card">
+      <header class="card-head"><h2 class="card-title">Pengaturan</h2><p class="card-desc">Keamanan &amp; data</p></header>
+
+      <div class="setting-block">
+        <h3 class="setting-h">Ubah Kata Sandi</h3>
+        <form id="pwForm" class="pw-form">
+          <input type="password" id="pwOld" placeholder="Sandi saat ini" aria-label="Sandi saat ini" />
+          <input type="password" id="pwNew" placeholder="Sandi baru" aria-label="Sandi baru" />
+          <button type="submit" class="chip-btn solid">Simpan</button>
+        </form>
+      </div>
+
+      <div class="setting-block">
+        <h3 class="setting-h">Pulihkan Data</h3>
+        <p class="setting-note">Muat cadangan JSON untuk menggantikan data saat ini.</p>
+        <label class="chip-btn file-btn">Pilih file JSON…<input type="file" id="importFile" accept="application/json" hidden /></label>
+      </div>
+
+      <div class="setting-block danger-zone">
+        <h3 class="setting-h">Zona Berisiko</h3>
+        <div class="dz-row">
+          <button class="chip-btn outline-danger" id="btnResetWeek">Kosongkan Minggu Ini</button>
+          <button class="chip-btn outline-danger" id="btnResetAll">Reset Semua Data</button>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <footer class="page-foot">
+    <span>Dashboard RS Senjakala · mode edit memerlukan kata sandi management</span>
+  </footer>
+</main>
+
+<!-- ===================== LOGIN MODAL ===================== -->
+<div id="loginModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+  <div class="modal login-modal foil">
+    <button class="modal-x" id="loginClose" aria-label="Tutup">&times;</button>
+    <div class="lock-emblem">
+      <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5Zm3 8H9V7a3 3 0 0 1 6 0v3Z" fill="currentColor"/></svg>
+    </div>
+    <h2 id="loginTitle" class="modal-title">Buka Dashboard</h2>
+    <p class="modal-sub">Semua bisa melihat. Untuk mengedit (kelola petugas, gaji, pengaturan), masuk sebagai management dengan kata sandi.</p>
+    <form id="loginForm">
+      <div class="pw-input">
+        <input type="password" id="loginPw" placeholder="Kata sandi management" autocomplete="current-password" aria-label="Kata sandi" />
+        <button type="button" class="pw-eye" id="pwEye" aria-label="Tampilkan sandi">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.7"/></svg>
+        </button>
+      </div>
+      <p class="login-error" id="loginError" hidden>Kata sandi salah. Coba lagi.</p>
+      <button type="submit" class="btn-gold full">Masuk sebagai Management</button>
+    </form>
+    <div class="login-or"><span>atau</span></div>
+    <button type="button" class="btn-ghost full" id="btnViewOnly">Lihat tanpa password (mode pengamat)</button>
+    <p class="login-foot" id="loginHint">Sandi awal management: <code>senjakala</code> — ganti setelah masuk.</p>
+  </div>
+</div>
+
+<!-- ===================== GENERIC MODAL ===================== -->
+<div id="modal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+  <div class="modal detail-modal foil" id="modalInner"></div>
+</div>
+
+<!-- ===================== TOASTS ===================== -->
+<div id="toasts" class="toasts" aria-live="polite" aria-atomic="false"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

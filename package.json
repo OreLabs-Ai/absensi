@@ -1,0 +1,13 @@
+{
+  "name": "absensi-coolbeans-senjakala",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Satu server Node.js menyajikan dua web absensi: Cool Beans Restaurant (/coolbeans) dan RS Senjakala (/senjakala). Tanpa dependensi npm.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

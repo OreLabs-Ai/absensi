@@ -1,0 +1,18 @@
+# Render Blueprint — free web service, one Node process for both webs.
+# Deploy: push to GitHub, then on render.com → New → Blueprint → pick this repo.
+# NOTE (free plan): the disk is ephemeral. Data in /data is LOST when the
+# service sleeps (after ~15 min idle) or redeploys. Back up regularly via
+# each app's  Pengaturan → Cadangkan JSON  and restore via Import.
+services:
+  - type: web
+    name: absensi
+    runtime: node
+    plan: free
+    region: singapore
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /healthz
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "22"

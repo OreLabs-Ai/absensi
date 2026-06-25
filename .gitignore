@@ -1,0 +1,14 @@
+# Runtime data (created at startup; NOT committed). Back up via the app's
+# Pengaturan → Cadangkan JSON. seed.json under apps/ IS committed.
+/data/
+*.tmp
+data.json
+
+node_modules/
+npm-debug.log*
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
