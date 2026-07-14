@@ -1,5 +1,5 @@
 /* =====================================================================
-   COOL BEANS RESTAURANT — Sistem Absensi
+   LOTUS PALACE RESTAURANT — Sistem Absensi
    Theme: "Creamery / Soft-serve" — dusty grape + strawberry-milk drips
    on warm vanilla cream. Cute, creamy, aesthetic. Signature = the drip.
    Master color knobs (live-customizable): --accent, --accent-rgb,
@@ -101,13 +101,13 @@ body{
 }
 .eyebrow-mark{width:24px; height:3px; border-radius:3px; background:var(--grad)}
 
-/* ---------------- Cool Beans logo mark ---------------- */
+/* ---------------- Lotus Palace logo mark ---------------- */
 .cb-logo .hat{fill:var(--accent)}
 .cb-logo .band{fill:var(--pink)}
 .cb-logo .stache,.cb-logo .eye{fill:var(--ink)}
 .cb-logo .brow{fill:none; stroke:var(--ink); stroke-width:2.1; stroke-linecap:round}
 
-/* Real Cool Beans logo (white line-art) on a soft grape→rose badge — like the shirt */
+/* Real Lotus Palace logo (white line-art) on a soft grape→rose badge — like the shirt */
 .logo-badge{display:inline-grid; place-items:center; border-radius:50%; background:var(--grad); flex-shrink:0;
   box-shadow:0 14px 28px -14px rgba(var(--accent-rgb),.55), inset 0 2px 6px rgba(255,255,255,.32)}
 .logo-badge img{width:74%; height:74%; object-fit:contain; display:block}

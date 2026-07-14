@@ -1,5 +1,5 @@
 /* =====================================================================
-   COOL BEANS RESTAURANT — Sistem Absensi  (vanilla JS, REST API ke server.js)
+   LOTUS PALACE RESTAURANT — Sistem Absensi  (vanilla JS, REST API ke server.js)
    ===================================================================== */
 (function () {
   "use strict";
@@ -569,7 +569,7 @@
         ${payrollBlock}
       </div>
       <div style="margin-top:1rem;text-align:right"><button class="chip-btn solid" data-export-week="${esc(w.key)}">Ekspor CSV minggu ini</button></div>`);
-    const exBtn = qs("[data-export-week]"); if (exBtn) exBtn.addEventListener("click", () => exportCSV(w.records, "Rekap_CoolBeans_" + w.start + "_sd_" + w.end));
+    const exBtn = qs("[data-export-week]"); if (exBtn) exBtn.addEventListener("click", () => exportCSV(w.records, "Rekap_LotusPalace_" + w.start + "_sd_" + w.end));
   }
 
   /* ---------------- Staff manager ---------------- */
@@ -726,12 +726,12 @@
       const day = DAYS_FULL[(parseYmd(r.date).getDay() + 6) % 7];
       lines.push([r.date, day, r.name, r.jabatan, DIVISION_LABEL[r.division] || r.division, r.shift, r.on, r.off, hours1(r.seconds), secToHuman(r.seconds)].map((v) => `"${String(v).replace(/"/g, '""')}"`).join(";"));
     });
-    download((fname || "Rekap_Cool_Beans") + ".csv", "﻿" + lines.join("\r\n"), "text/csv;charset=utf-8");
+    download((fname || "Rekap_Lotus_Palace") + ".csv", "﻿" + lines.join("\r\n"), "text/csv;charset=utf-8");
     toast("CSV diunduh", "ok");
   }
   function exportJSON() {
     const data = { staff: state.staff, week: state.week, history: state.history };
-    download("Backup_Cool_Beans_" + ymd(new Date()) + ".json", JSON.stringify(data, null, 2), "application/json");
+    download("Backup_Lotus_Palace_" + ymd(new Date()) + ".json", JSON.stringify(data, null, 2), "application/json");
     toast("Cadangan JSON diunduh", "ok");
   }
   function importJSON(file) {
@@ -802,7 +802,7 @@
   let themeBusy = false, appliedThemeSig = "";
   const DEFAULT_THEME = { accent: "#7A5DC7", pink: "#E89AAE", bg: "vanilla" };
   const PRESETS = [
-    { name: "Cool Beans", accent: "#7A5DC7", pink: "#E89AAE" },
+    { name: "Lotus Palace", accent: "#7A5DC7", pink: "#E89AAE" },
     { name: "Strawberry", accent: "#D65C86", pink: "#F4A9C0" },
     { name: "Matcha", accent: "#6FA85E", pink: "#CBD98F" },
     { name: "Taro", accent: "#8A6FD0", pink: "#C9A9EE" },
@@ -970,7 +970,7 @@
     qs("#pwForm").addEventListener("submit", changePassword);
     qs("#btnExportCsv").addEventListener("click", () => {
       if (!state.week.records.length) return toast("Belum ada data minggu ini", "info");
-      exportCSV(state.week.records, "Rekap_Cool_Beans_" + state.week.start + "_sd_" + state.week.end);
+      exportCSV(state.week.records, "Rekap_Lotus_Palace_" + state.week.start + "_sd_" + state.week.end);
     });
     qs("#btnExportJson").addEventListener("click", exportJSON);
     qs("#importFile").addEventListener("change", (e) => { if (e.target.files[0]) importJSON(e.target.files[0]); e.target.value = ""; });

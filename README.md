@@ -1,11 +1,11 @@
-# Absensi — Cool Beans + RS Senjakala (satu server)
+# Absensi — Lotus Palace + RS Senjakala (satu server)
 
 Satu proses **Node.js** menyajikan **dua web absensi** sekaligus:
 
 | URL | Aplikasi |
 |-----|----------|
 | `/` | Halaman pemilih (landing) |
-| `/coolbeans/` | **Cool Beans Restaurant** (tema ungu/pink, ada penyesuaian warna) |
+| `/coolbeans/` | **Lotus Palace Restaurant** (dulu Cool Beans — tema ungu/pink, ada penyesuaian warna) |
 | `/senjakala/` | **RS Senjakala** (tema gold) |
 
 Nyalakan **satu** `node server.js` → kedua web langsung aktif. Murni Node.js, **tanpa dependensi npm**.
@@ -14,7 +14,7 @@ Nyalakan **satu** `node server.js` → kedua web langsung aktif. Murni Node.js, 
 ```
 server.js              # entry: router + landing, mount kedua app
 lib/app-core.js        # logika bersama (API + storage), dipakai kedua app
-apps/coolbeans/public  # web Cool Beans (index.html, styles.css, app.js, dst)
+apps/coolbeans/public  # web Lotus Palace (index.html, styles.css, app.js, dst)
 apps/senjakala/public  # web RS Senjakala
 apps/senjakala/seed.json   # data awal RS Senjakala (roster dipulihkan saat start bersih)
 data/                  # data runtime (coolbeans.json, senjakala.json) — TIDAK di-commit
@@ -30,7 +30,7 @@ Buka http://localhost:3000 . Ubah port: `PORT=8080 node server.js`.
 Lokasi data bisa dipindah: `DATA_DIR=/path/persisten node server.js`.
 
 ## Login dashboard (awal)
-- Cool Beans → sandi **`coolbeans`**
+- Lotus Palace → sandi **`coolbeans`**
 - RS Senjakala → sandi **`senjakala`**
 
 Ganti di **Dashboard → Pengaturan** masing-masing. Token berlaku 8 jam.
@@ -72,7 +72,7 @@ Render free tidur setelah ~15 menit idle. Pakai pinger gratis:
 ```bash
 git init
 git add -A
-git commit -m "Gabungkan Cool Beans + RS Senjakala jadi satu server"
+git commit -m "Gabungkan Lotus Palace + RS Senjakala jadi satu server"
 # buat repo & push — Git akan membuka browser untuk otorisasi (Git Credential Manager):
 git branch -M main
 git remote add origin https://github.com/<username-kamu>/absensi.git

@@ -1,7 +1,7 @@
 /* =====================================================================
-   COOL BEANS + RS SENJAKALA — Combined server (pure Node.js, no deps)
+   LOTUS PALACE + RS SENJAKALA — Combined server (pure Node.js, no deps)
    One Node process serves BOTH attendance webs:
-     /coolbeans/  → Cool Beans Restaurant
+     /coolbeans/  → Lotus Palace Restaurant
      /senjakala/  → RS Senjakala
      /            → landing page (links to both)
    Run:  node server.js        (default http://localhost:3000)
@@ -23,7 +23,7 @@ fs.mkdirSync(DATA_DIR, { recursive: true });
 
 /* ---------------- App configs ---------------- */
 const COOLBEANS_CONFIG = {
-  name: "Cool Beans",
+  name: "Lotus Palace",
   key: "coolbeans",
   publicDir: path.join(APPS_DIR, "coolbeans", "public"),
   dataFile: path.join(DATA_DIR, "coolbeans.json"),
@@ -94,7 +94,7 @@ const LANDING = `<!doctype html><html lang="id"><head><meta charset="utf-8">
   <h1>Sistem Absensi</h1>
   <p class="sub">Pilih organisasi untuk membuka halaman absensi & dashboard.</p>
   <div class="cards">
-    <a class="card cb" href="/coolbeans/"><span class="dot">☕</span><span><b>Cool Beans Restaurant</b><span>Absensi &amp; rekap shift — tema ungu/pink</span></span></a>
+    <a class="card cb" href="/coolbeans/"><span class="dot">🪷</span><span><b>Lotus Palace Restaurant</b><span>Absensi &amp; rekap shift — tema ungu/pink</span></span></a>
     <a class="card sj" href="/senjakala/"><span class="dot">✚</span><span><b>RS Senjakala</b><span>Absensi &amp; rekap shift — tema gold</span></span></a>
   </div>
   <footer>Satu server Node.js menyajikan kedua web.</footer>
@@ -137,7 +137,7 @@ const LANDING = `<!doctype html><html lang="id"><head><meta charset="utf-8">
   server.listen(PORT, HOST, () => {
     console.log(`\n  Sistem Absensi (gabungan) — server aktif (bind ${HOST}:${PORT})`);
     console.log(`  ➜  Landing      : http://localhost:${PORT}/`);
-    console.log(`  ➜  Cool Beans   : http://localhost:${PORT}/coolbeans/`);
+    console.log(`  ➜  Lotus Palace : http://localhost:${PORT}/coolbeans/`);
     console.log(`  ➜  RS Senjakala : http://localhost:${PORT}/senjakala/`);
     const nets = os.networkInterfaces();
     for (const name of Object.keys(nets)) for (const ni of nets[name] || []) if (ni.family === "IPv4" && !ni.internal) console.log(`  ➜  Jaringan     : http://${ni.address}:${PORT}/`);
